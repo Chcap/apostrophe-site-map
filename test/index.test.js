@@ -12,9 +12,9 @@ chai.use(sinonChai);
 
 describe('apostrophe-site-map', function () {
 
-    var FAKE_DATE = new Date('2010/11/23');
-    var FAKE_YESTERDAY = new Date('2010/11/22');
-    var FAKE_TOMORROW = new Date('2010/11/22');
+    var FAKE_DATE = new Date('2010-11-23');
+    var FAKE_YESTERDAY = new Date('2010-11-22');
+    var FAKE_TOMORROW = new Date('2010-11-22');
 
     function homePage() {
         return {
