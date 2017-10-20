@@ -1,4 +1,5 @@
 
+var apostrophe = require('apostrophe');
 var Cache = require('node-cache');
 var chai = require('chai');
 var express = require('express');
@@ -54,6 +55,14 @@ describe('apostrophe-site-map', function () {
             }]
         }];
     };
+
+    this.timeout(5000);
+
+    afterEach(function () {
+        if (this.apos) {
+            this.apos.db.dropDatabase();
+        }
+    });
 
     beforeEach(function () {
         this.mockFs = {
@@ -134,6 +143,41 @@ describe('apostrophe-site-map', function () {
             }
         }
     }
+
+    it.only('should be a property of the apos object', function (done) {
+        this.apos = require('apostrophe')({
+            testModule: true,
+
+            modules: {
+                'apostrophe-pages': {
+                    park: [],
+                    types: [
+                        {
+                            name: 'home',
+                            label: 'Home'
+                        },
+                        {
+                            name: 'testPage',
+                            label: 'Test Page'
+                        }
+                    ]
+                },
+                'apostrophe-workflow': {}
+                // 'apostrophe-site-map': {}
+            },
+            afterInit: function (callback) {
+                console.log('after init')
+                assert(apos.modules['apostrophe-site-map']);
+                // Should NOT have an alias!
+                assert(!apos.workflow);
+                return callback(null);
+            },
+            afterListen: function (err) {
+                done();
+            }
+        });
+    });
+
 
     it('should return xml sitemap when calling route', function () {
         // given
@@ -244,7 +288,7 @@ describe('apostrophe-site-map', function () {
         self.apos.argv = {
             indent: true // TODO no output if indent is not defined here
         }
-        this.sitemap.construct(self, {format: 'text'});
+        this.sitemap.construct(self, { format: 'text' });
         this.sitemap.afterConstruct(self);
         var agent = request(self.apos.app);
 
@@ -252,15 +296,15 @@ describe('apostrophe-site-map', function () {
         self.mapTask(self.apos, {}, function () {
             // then
 
-            mockWriteFileSync.getCall(0).args[1].should.equal( 
-            '/my/homepage/url\n' +
-            '  /another/page/url\n' +
-            '    /again/another/page/url\n' +
-            '        /my/piece/url\n' +
-            '  /my/piece/child/url\n' +
-            '      /another/piece/url\n' +
-            '  /another/piece/child/url\n'
-          );
+            mockWriteFileSync.getCall(0).args[1].should.equal(
+                '/my/homepage/url\n' +
+                '  /another/page/url\n' +
+                '    /again/another/page/url\n' +
+                '        /my/piece/url\n' +
+                '  /my/piece/child/url\n' +
+                '      /another/piece/url\n' +
+                '  /another/piece/child/url\n'
+            );
             done();
         });
     });
